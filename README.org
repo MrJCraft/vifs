@@ -1,0 +1,93 @@
+* VIFS
+1. what problem does this program solve
+2. how does it solve it
+3. how can I use it
+
+** Problem Domain
+I program in a pure functional scripting language with manual allocation and freeing
+in other words a configuration language for a video game,
+the language has very few programming concepts but manages game state its very annoying to modify
+and it forces you to use many files because every if statement is a new file
+recursion was recently updated but sometimes you do just need a list of 100 functions
+every function is also a seperate file.
+
+I went thruogh three different custom DSL's and I thought of a better way to do it
+that would integrate very easily with Grep Vim and Emacs.
+
+** how it works
+the file format is designed around Grep, I use ripgrep but grep also works though the command might need to be changed
+#+begin_src bat
+  rg -e (.*(?:keyword).*) --vimgrep > out.vifs
+#+end_src
+I turned the above command to a bat file which is also in the release
+#+begin_src bat
+  rgl test -ttxt out.vifs
+#+end_src
+
+This is the output of ripgrep in the vimgrep format gives the file name and line number I pipe that to a file
+this file can now be edited freely
+#+begin_src text
+hello2.txt:3:1:asdf test
+hello2.txt:4:1:asdf asdf test
+hello2.txt:7:1:asdf test
+hello.txt:1:1:test
+hello.txt:3:1:one two three test
+hello.txt:4:1:one test three
+hello.txt:6:1:one test three
+hello.txt:8:1:one two test
+hello.txt:9:1:test test
+#+end_src
+
+and I run this on the outputed file
+#+begin_src bat
+  vifs.exe out.vifs
+#+end_src
+
+and vifs will go through every line in out.vifs and swap the lines out for the new one
+like how Vim motions is structured file editing this is a small hack to effectively get structured tree editing
+
+this one tools fixes the majority of my personal developement issues
+
+generating lists of files
+I use Emacs/Vim Macros to generate the text rather than a programming language
+this wont work for all my needs but it is good enough
+example
+#+begin_src txt
+test1.function:1:1:print hello 1
+test2.function:1:1:print hello 2
+test3.function:1:1:print hello 3
+etc...
+#+end_src
+its not a special format just text
+
+second replacing complex logic, names, magic numbers throughout many files
+(there are no variable in the language I am using only magic constants, unless you switch to the limiting game state)
+
+the code I work on is like a terrible state machine and keeping track of all of the locations
+so you can use grep like the above example and replace everything manualy
+
+obviously some would just say well with a good enough regexp but I am not using that and you problably arent either
+so this makes that issue a little bit better 
+
+
+last it could be used to add to files but its currently very likely to delete lines because it only replaces
+but adding a feature to append or join the lines into the files is very easy but currently not in the scope of vifs yet
+
+
+** installation
+1. goto the releases page and download
+2. put vifs into its own folder
+   I personally have a exe folder for a list of useful executables
+3. add that folder to the enviroment variables / path
+
+this is not a tutorial on the last step
+you also get the rgl bat file I use ripgrep and I am not sure if anything is different between it and normal grep
+so you can make a request or notify me of any issues or lack there of.
+
+
+
+
+
+
+
+
