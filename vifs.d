@@ -57,19 +57,34 @@ void setup(string filename) {
       continue;
     }
     string[] parts = line.split(":");
+    string pline = line.parse;
     if(parts[0] in names) {
       id = names[parts[0]];
       files[id].idx ~= to!int(parts[1]);
-      files[id].lines ~= parts[3];
+      files[id].lines ~= pline;
     } else {
       names[parts[0]] = i;
       id = i;
       fed fd;
       fd.idx ~= to!int(parts[1]);
-      fd.lines ~= parts[3];
+      fd.lines ~= pline;
       files ~= fd;
       i += 1;
     }
   }
   f.close;
+}
+
+string parse(string line) {
+  int total, j = 0;
+  foreach(c;line){
+    if(c == ':') {
+      total++;
+    }
+    if(total == 3) {
+      return line[j+1..$];
+    }
+    j++;
+  }
+  assert(0, "Parse Error, not enough ':' need 3 name:line-num:1:line");
 }
