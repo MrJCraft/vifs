@@ -1,3 +1,4 @@
+
 import std.stdio;
 import std.file;
 import std.parallelism;
@@ -6,11 +7,18 @@ import std.conv;
 import std.algorithm;
 import std.array;
 
-//(.*(?:hello).*)
+// (.*(?:hello).*)
+// Name:line-num:cmd:text
+//                ^
+
+bool rep = true;
+// if any any commands are executed they it will duplicate lines
+// only useful for a onetime execute
 
 struct fed {
   int[] idx;
   string[] lines;
+  string[] cmd;
 }
 
 fed[] files;
@@ -18,14 +26,21 @@ int[string] names;
 
 
 void main(string[] args) {
-  string name = args[1];
-  setup(name);
-  distribute();
+  if(args.length > 0) {
+    string name = args[1];
+    setup(name);
+    if(!rep) {
+      writeln("vifs file uses Insert mode, and is no longer reproducible");
+      writeln("if you execute this same file again you will be duplicating the line every time");
+    }
+    distribute();
+  } else {
+    writeln("Error: no input file");
+  }
 }
 
 void distribute() {
   foreach(v, i; names) {
-    //if file doesnt exist use empty array
     string[] contents;
     if(v.exists) {
       contents = readText(v).split("\n");
@@ -33,10 +48,22 @@ void distribute() {
     fed def = files[i];
     foreach(j, l; def.lines) {
       int id = def.idx[j];
-
+      string mode = def.cmd[j];
       if(id >= contents.length) {contents ~= new string[id-contents.length];}
-
-      contents[id-1] = l;
+      if(mode == "1") {
+        contents[id-1] = l;
+      } else if(mode == "a") {
+        contents ~= "";
+        contents[id] ~= l;       
+      } else if(mode == "i") {
+        if(id > 1) {
+        contents[id-2] ~= l;
+        } else if(id == 1) {
+          contents ~= "";
+          contents[1] ~= contents[0];
+          contents[0] = l;
+        }
+      }
     }
     File f = File(v, "w");
     foreach(line; contents) {
@@ -56,18 +83,22 @@ void setup(string filename) {
     if(line.length < 7) {
       continue;
     }
-    string[] parts = line.split(":");
-    string pline = line.parse;
+    string[4] parts = parseline(line);
     if(parts[0] in names) {
       id = names[parts[0]];
       files[id].idx ~= to!int(parts[1]);
-      files[id].lines ~= pline;
+      files[id].lines ~= parts[3];
+      files[id].cmd ~= parts[2];
+      if(parts[2] == "a" || parts[2] == "i") {
+        rep = false;
+      }
     } else {
       names[parts[0]] = i;
       id = i;
       fed fd;
       fd.idx ~= to!int(parts[1]);
-      fd.lines ~= pline;
+      fd.lines ~= parts[3];
+      fd.cmd ~= parts[2];
       files ~= fd;
       i += 1;
     }
@@ -75,16 +106,18 @@ void setup(string filename) {
   f.close;
 }
 
-string parse(string line) {
-  int total, j = 0;
-  foreach(c;line){
+string[4] parseline(string line) {
+  int total = 0;
+  ulong[] pos;
+  foreach(i, c; line) {
     if(c == ':') {
-      total++;
+      pos ~= i;
     }
-    if(total == 3) {
-      return line[j+1..$];
-    }
-    j++;
   }
-  assert(0, "Parse Error, not enough ':' need 3 name:line-num:1:line");
+  assert(total < 3, "Parse Error, not enough ':' need 3 name:line-num:1:line");
+  string first = line[0..pos[0]];
+  string second = line[pos[0]+1..pos[1]];
+  string third = line[pos[1]+1..pos[2]];
+  string fourth = line[pos[2]+1..$];
+  return [first, second, third, fourth];
 }
