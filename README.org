@@ -68,6 +68,23 @@ so this makes that issue a little bit better
 last it could be used to add to files but its currently very likely to delete lines because it only replaces
 but adding a feature to append or join the lines into the files is very easy but currently not in the scope of vifs yet
 
+** insterting and appending
+
+#+begin_src txt
+test1.function:1:1:print hello 1
+test1.function:1:i:print hello 2
+test1.function:1:a:print hello 3
+#+end_src
+output
+#+begin_src text
+print hello 2
+print hello 3
+print hello 1
+#+end_src
+1 replaces line
+2 is inserted below
+3 is printed after line 1
+
 
 ** installation
 1. goto the releases page and download
@@ -78,11 +95,4 @@ but adding a feature to append or join the lines into the files is very easy but
 this is not a tutorial on the last step
 you also get the rgl bat file I use ripgrep and I am not sure if anything is different between it and normal grep
 so you can make a request or notify me of any issues or lack there of.
-
-
-
-
-
-
-
 
