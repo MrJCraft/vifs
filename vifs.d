@@ -1,4 +1,3 @@
-
 import std.stdio;
 import std.file;
 import std.parallelism;
@@ -6,6 +5,7 @@ import std.string;
 import std.conv;
 import std.algorithm;
 import std.array;
+import std.windows.syserror;
 
 // (.*(?:hello).*)
 // Name:line-num:cmd:text
@@ -26,7 +26,7 @@ int[string] names;
 
 
 void main(string[] args) {
-  if(args.length > 0) {
+  if(args.length > 1) {
     string name = args[1];
     setup(name);
     if(!rep) {
@@ -64,6 +64,10 @@ void distribute() {
           contents[0] = l;
         }
       }
+    }
+    try {
+      mkPath(v);
+    } catch(std.windows.syserror.WindowsException e) {
     }
     File f = File(v, "w");
     foreach(line; contents) {
@@ -120,4 +124,19 @@ string[4] parseline(string line) {
   string third = line[pos[1]+1..pos[2]];
   string fourth = line[pos[2]+1..$];
   return [first, second, third, fourth];
+}
+
+
+void mkPath(string path) {
+  ulong[] pos;
+  foreach(i, c; path) {
+    if(c == '/') {
+      pos ~= i;
+    }
+  }
+  if(pos.length > 0) {
+    foreach(p; pos) {
+      path[0..p].mkdir;
+    }
+  }
 }
