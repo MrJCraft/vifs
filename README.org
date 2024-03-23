@@ -78,8 +78,8 @@ test1.function:1:a:print hello 3
 output
 #+begin_src text
 print hello 2
-print hello 3
 print hello 1
+print hello 3
 #+end_src
 1 replaces line
 2 is inserted below
