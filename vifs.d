@@ -65,10 +65,10 @@ void distribute() {
         }
       }
     }
-    try {
+//    try {
       mkPath(v);
-    } catch(std.windows.syserror.WindowsException e) {
-    }
+//    } catch(std.windows.syserror.WindowsException e) {
+//    }
     File f = File(v, "w");
     foreach(line; contents) {
       f.writeln(line.strip);
