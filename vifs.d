@@ -48,7 +48,7 @@ void distribute() {
   foreach(v, i; names) {
     string[] contents;
     if(v.exists) {
-      contents = readText(v).split("\n");
+          contents = readText(v).split("\n");
     }
     fed def = files[i];
     foreach(j, l; def.lines) {
@@ -75,14 +75,20 @@ void distribute() {
           mkPath(v);
     }
     File f = File(v, "w");
-    foreach(line; contents) {
-          if(line.length < 1) {
+    foreach(j, line; contents) {
+          if(j == contents.length-1) {
+                break;
+          }
+          if(line.length < 2) {
                 f.writeln();
+          } else if(line[line.length-1] == 10 || line[line.length-1] == 13) {
+                f.writeln(line.strip([cast(char) 10, cast(char) 13]));
           } else {
-                f.writeln(line[0..$-1]);
+                writeln(line);
+                f.writeln(line);
           }
     }
-    f.close;
+    scope(exit) f.close;
   }
 }
 
