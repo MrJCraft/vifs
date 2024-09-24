@@ -4,8 +4,8 @@ import std.parallelism;
 import std.string;
 import std.conv;
 import std.algorithm;
+import std.algorithm.searching;
 import std.array;
-import std.windows.syserror;
 
 // (.*(?:hello).*)
 // Name:line-num:cmd:text
@@ -14,6 +14,10 @@ import std.windows.syserror;
 bool rep = true;
 // if any any commands are executed they it will duplicate lines
 // only useful for a onetime execute
+
+// TODO add Range Syntax
+// TODO g and G
+// decide if I am removing the not deterministic features
 
 struct fed {
   int[] idx;
@@ -39,6 +43,7 @@ void main(string[] args) {
   }
 }
 
+// TODO this one is a time waster
 void distribute() {
   foreach(v, i; names) {
     string[] contents;
@@ -65,16 +70,29 @@ void distribute() {
         }
       }
     }
-//    try {
-      mkPath(v);
-//    } catch(std.windows.syserror.WindowsException e) {
-//    }
+    int dis = v.findLast('/');
+    if(dis != -1 && !v[0..dis].exists) {
+          mkPath(v);
+    }
     File f = File(v, "w");
     foreach(line; contents) {
-      f.writeln(line.strip);
+          if(line.length < 1) {
+                f.writeln();
+          } else {
+                f.writeln(line[0..$-1]);
+          }
     }
     f.close;
   }
+}
+
+int findLast(string line, char find) {
+      foreach_reverse(i, v; line) {
+            if(v == find) {
+                  return cast(int) i;
+            }
+      }
+      return -1;
 }
 
 void setup(string filename) {
