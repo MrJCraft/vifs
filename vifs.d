@@ -15,7 +15,6 @@ bool rep = true;
 // if any any commands are executed they it will duplicate lines
 // only useful for a onetime execute
 
-// TODO add Range Syntax
 // TODO g and G
 // decide if I am removing the not deterministic features
 
@@ -54,7 +53,10 @@ void distribute() {
     foreach(j, l; def.lines) {
       int id = def.idx[j];
       string mode = def.cmd[j];
-      if(id >= contents.length) {contents ~= new string[id-contents.length];}
+      if(id >= contents.length) {
+            contents.length = id+2;
+            // contents ~= new string[id-contents.length];
+      }
       if(mode == "1") {
         contents[id-1] = l;
       } else if(mode == "a") {
@@ -84,7 +86,7 @@ void distribute() {
           } else if(line[line.length-1] == 10 || line[line.length-1] == 13) {
                 f.writeln(line.strip([cast(char) 10, cast(char) 13]));
           } else {
-                writeln(line);
+                // writeln(fed.j);
                 f.writeln(line);
           }
     }
@@ -111,6 +113,7 @@ void setup(string filename) {
     if(line.length < 7) {
       continue;
     }
+    if(line[0] == '#') continue;
     string[4] parts = parseline(line);
     if(parts[0] in names) {
       id = names[parts[0]];
